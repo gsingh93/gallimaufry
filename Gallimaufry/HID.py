@@ -1,4 +1,3 @@
-
 class HID:
     """Describes a USB HID.
 
@@ -13,7 +12,7 @@ class HID:
         self.bcdHID = int(hid_descriptor_packet['usbhid.descriptor.hid.bcdHID'],16)
         self.bCountryCode = int(hid_descriptor_packet['usbhid.descriptor.hid.bCountryCode'],16)
         self.bNumDescriptors = int(hid_descriptor_packet['usbhid.descriptor.hid.bNumDescriptors'])
-        self.bDescriptorType = int(hid_descriptor_packet['usbhid.descriptor.hid.bDescriptorType'])
+        self.bDescriptorType = int(hid_descriptor_packet['usbhid.descriptor.hid.bDescriptorType'], 0)
         self.wDescriptorLength = int(hid_descriptor_packet['usbhid.descriptor.hid.wDescriptorLength'])
 
     def __repr__(self) -> str:
@@ -68,4 +67,3 @@ class HID:
     @bcdHID.setter
     def bcdHID(self, bcdHID: int) -> None:
         self.__bcdHID = bcdHID
-

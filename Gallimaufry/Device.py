@@ -4,7 +4,7 @@ logger = logging.getLogger("USB.Device")
 
 class Device:
     """Defines a USB device.
-    
+
     Args:
         device_descriptor (dict): The device descriptor packet to use in generating this device object.
         pcap (list): The full list of packets as returned by tshark.
@@ -24,7 +24,7 @@ class Device:
     def _parse_configuration_descriptors(self) -> None:
         """Discover and add configuration descriptors to this device."""
         self.configurations = []
-        
+
         # Find all the configuration descriptors
         for packet in self.pcap:
             if has_configuration_descriptor(packet) and has_endpoint_descriptor(packet):
@@ -45,7 +45,7 @@ class Device:
         for descriptor in string_descriptors:
             request_frame = int(descriptor['_source']['layers']['usb']['usb.request_in'])
             packet = next(packet for packet in self.pcap if int(packet['_source']['layers']['frame']['frame.number']) == request_frame)
-            iDescriptor = int(packet['_source']['layers']['URB setup']['usb.DescriptorIndex'],16)
+            iDescriptor = int(packet['_source']['layers']['Setup Data']['usb.DescriptorIndex'],16)
             bString = descriptor['_source']['layers']['STRING DESCRIPTOR']['usb.bString']
 
             self.string_descriptors[iDescriptor] = bString
@@ -53,7 +53,7 @@ class Device:
 
     def _parse_device_descriptor(self, device_descriptor) -> None:
         """Given a descriptor packet, parse out the fields."""
-        
+
         self.bus_id = int(device_descriptor['_source']['layers']['usb']['usb.bus_id'])
         self.device_address = int(device_descriptor['_source']['layers']['usb']['usb.device_address'])
         self.bNumConfigurations = int(device_descriptor['_source']['layers']['DEVICE DESCRIPTOR']['usb.bNumConfigurations'])
@@ -64,11 +64,11 @@ class Device:
         self.bluetooth_subminor = int(bcdUSB[3:4],10)
 
         bcdDevice = "{0:04x}".format(int(device_descriptor['_source']['layers']['DEVICE DESCRIPTOR']['usb.bcdDevice'],16))
-        self.device_major = int(bcdDevice[:2],10)
-        self.device_minor = int(bcdDevice[2:3],10)
-        self.device_subminor = int(bcdDevice[3:4],10)
+        self.device_major = int(bcdDevice[:2],16)
+        self.device_minor = int(bcdDevice[2:3],16)
+        self.device_subminor = int(bcdDevice[3:4],16)
 
-        self.idVendor = int(device_descriptor['_source']['layers']['DEVICE DESCRIPTOR']['usb.idVendor'],10)
+        self.idVendor = int(device_descriptor['_source']['layers']['DEVICE DESCRIPTOR']['usb.idVendor'],0)
         self.idProduct = int(device_descriptor['_source']['layers']['DEVICE DESCRIPTOR']['usb.idProduct'],16)
         self.iManufacturer = int(device_descriptor['_source']['layers']['DEVICE DESCRIPTOR']['usb.iManufacturer'],10)
         self.iProduct = int(device_descriptor['_source']['layers']['DEVICE DESCRIPTOR']['usb.iProduct'],10)
@@ -129,9 +129,9 @@ class Device:
     @pcap.setter
     def pcap(self, pcap):
         # Filter the pcap down to only packets relevant for this device.
-        self.__pcap = [packet for packet in pcap if 
-                'usb' in packet['_source']['layers'] and 
-                int(packet['_source']['layers']['usb']['usb.bus_id']) == self.bus_id and 
+        self.__pcap = [packet for packet in pcap if
+                'usb' in packet['_source']['layers'] and
+                int(packet['_source']['layers']['usb']['usb.bus_id']) == self.bus_id and
                 int(packet['_source']['layers']['usb']['usb.device_address']) == self.device_address
                 ]
 

@@ -39,11 +39,11 @@ class Interface:
         self.bInterfaceNumber = int(interface_descriptor_packet['usb.bInterfaceNumber'])
         self.bAlternateSetting = int(interface_descriptor_packet['usb.bAlternateSetting'])
         self.bNumEndpoints = int(interface_descriptor_packet['usb.bNumEndpoints'])
-        self.bInterfaceClass = int(interface_descriptor_packet['usb.bInterfaceClass'])
+        self.bInterfaceClass = int(interface_descriptor_packet['usb.bInterfaceClass'], 0)
         self.bInterfaceSubClass = int(interface_descriptor_packet['usb.bInterfaceSubClass'],0)
         self.bInterfaceProtocol = int(interface_descriptor_packet['usb.bInterfaceProtocol'],16)
         self.iInterface = int(interface_descriptor_packet['usb.iInterface'])
-    
+
     def _parse_uvc_streaming_descriptor_packet(self, uvc_descriptor_packet):
         self.uvc.append(StreamingDescriptor(uvc_descriptor_packet))
 
@@ -77,7 +77,7 @@ class Interface:
 
         if self.protocol_str != None:
             summary += "Protocol: {0}\n".format(self.protocol_str)
-        
+
         if self.uvc != []:
             summary += "\n"
             summary += "Video descriptors\n"
@@ -88,11 +88,11 @@ class Interface:
                 summary += "\n"
                 for line in uvc.summary.split("\n"):
                     summary +=  " "*4 + line + "\n"
-        
+
         if self.endpoints != []:
             summary += "\n"
             summary += "Endpoints\n"
-            summary += "---------\n"        
+            summary += "---------\n"
 
             # Loop through Endpoints
             for endpoint in self.endpoints:
